@@ -6,6 +6,8 @@ import { addRemoteAndPush, initGit } from '../utils/gitSetup.js';
 import { copyCiCd } from '../utils/copyCiCd.js';
 import { deployNow, deployToVercel } from '../utils/setupVercel.js';
 import prompts from 'prompts';
+import { setupRouting } from '../utils/setupRouting.js';
+import { setupZustand } from '../utils/setupZustand.js';
 
 
 export async function generateBaseProject(options) {
@@ -29,6 +31,10 @@ export async function generateBaseProject(options) {
 
   const projectRoot = path.join(process.cwd(), projectName);
 
+// ✅ Setup routing BEFORE deployment
+   await setupRouting(projectRoot);
+  
+
    if (useGit) {
     initGit(projectRoot);
     if (pushToRemote && remoteUrl) {
@@ -40,6 +46,11 @@ export async function generateBaseProject(options) {
     await copyCiCd({ projectName, language });
   }
 
+  if (options.includeZustand) {
+  await setupZustand({ projectName, language });
+}
+
+  
    // Check if the user wants to deploy to Vercel and call the helper if true
   if (vercelDeploy) {
   

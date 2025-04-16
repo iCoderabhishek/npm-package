@@ -44,6 +44,13 @@ export async function getUserOptions() {
     },
     {
       type: 'confirm',
+      name: 'includeZustand',
+      message: '🧠 Add Zustand for state management?',
+      initial: false,
+    }
+    ,
+    {
+      type: 'confirm',
       name: 'vercelDeploy',
       message: '🚀 Deploy the project using Vercel CLI?',
       initial: true,

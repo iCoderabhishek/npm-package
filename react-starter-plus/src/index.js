@@ -2,7 +2,6 @@ import { intro, outro } from './utils/logger.js';
 import { getUserOptions } from './prompts/getUserOptions.js';
 import { generateBaseProject } from './generators/base.js';
 import { copyBase } from './utils/copyBase.js';
-import { setupRouting } from './utils/setupRouting.js'; 
 import path from 'path';
 
 const run = async () => {
@@ -11,11 +10,7 @@ const run = async () => {
   const baseOptions = await getUserOptions();
 
   await copyBase(baseOptions);
-  await generateBaseProject(baseOptions);
-
-    const root = path.join(process.cwd(), baseOptions.projectName);
-    setupRouting(root); 
-  
+  await generateBaseProject(baseOptions);  
 
   outro('🎉 Done! Happy hacking!');
 };

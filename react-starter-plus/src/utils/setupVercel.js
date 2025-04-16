@@ -35,15 +35,23 @@ function spawnLogin() {
 export async function deployNow(projectName) {
   console.log('🚀 Deploying to Vercel...');
   try {
+    // Step 1: Build the project before deploying
+    console.log('📦 Building the project...');
+    await exec(`cd ${projectName} && npm run build`);
+    console.log('✅ Build successful!');
+
+    // Step 2: Deploy the built project using Vercel CLI
     const { stdout, stderr } = await exec(
-      `cd ${projectName} && vercel --prod --yes --name ${projectName}`
+      `cd ${projectName} && vercel --prod --yes`
     );
+
     if (stderr) console.warn('⚠️ stderr:', stderr);
     console.log(`✅ Deployment successful:\n${stdout}`);
   } catch (err) {
     console.error('❌ Deployment failed:', err.message);
   }
 }
+
 
 export async function deployToVercel(projectName) {
   console.log('🔍 Checking Vercel CLI...');
