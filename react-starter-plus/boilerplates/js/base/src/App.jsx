@@ -1,20 +1,16 @@
-import { useState } from 'react'
+import React from 'react';
+import { useCounterStore } from './store/counterStore'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const count = useCounterStore((state) => state.count)
+  const increment = useCounterStore((state) => state.increment)
 
   return (
     <>
-      <h1>Vite + React</h1>
+      <h1>Vite + React + Zustand</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-       
+        <button onClick={increment}>count is {count}</button>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }

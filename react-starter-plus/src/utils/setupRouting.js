@@ -1,13 +1,12 @@
 import { execSync } from 'child_process';
-import path from 'path';
 
 export function setupRouting(projectRoot) {
-  console.log('🧭 Installing React Router DOM...');
+  // console.log('🧭 Installing React Router DOM...');
   execSync('npm install react-router-dom', {
     cwd: projectRoot,
-    stdio: 'inherit',
+    stdio: 'ignore',
     shell: true,
   });
 
-  console.log('✅ React Router installed!');
+  // console.log('✅ React Router installed!');
 }

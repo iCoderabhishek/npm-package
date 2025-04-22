@@ -12,25 +12,25 @@ export async function copyBase({ projectName, language }) {
   const templatesPath = path.join(__dirname, '../../templates');
 
   // Step 1: Create project folder
-  console.log('📁 copyBase CALLED with:', projectName, language);
+  // console.log('📁 copyBase CALLED with:', projectName, language);
 
-  console.log(chalk.blue(`📁 Creating project at ${projectPath}`));
+  // console.log(chalk.blue(`📁 Creating project at ${projectPath}`));
   await fs.ensureDir(projectPath);
 
   // Step 2: Copy boilerplate files
-  console.log(chalk.blue('📦 Copying base files...'));
+  // console.log(chalk.blue('📦 Copying base files...'));
   await fs.copy(boilerplatePath, projectPath);
 
   // Step 3: Copy global templates like .env, .gitignore, README
-  console.log(chalk.blue('📝 Copying template files...'));
+  // console.log(chalk.blue('📝 Copying template files...'));
   const filesToCopy = ['.gitignore', 'README.md'];
   for (const file of filesToCopy) {
     await fs.copy(path.join(templatesPath, file), path.join(projectPath, file));
   }
 
   // Step 4: Write empty .env
-  console.log(chalk.blue('🔐 Creating .env file...'));
+  // console.log(chalk.blue('🔐 Creating .env file...'));
   await fs.writeFile(path.join(projectPath, '.env'), '# Environment variables\n');
 
-  console.log(chalk.green(`✅ Project ${projectName} ready!`));
+  // console.log(chalk.green(`✅ Project ${projectName} ready!`));
 }

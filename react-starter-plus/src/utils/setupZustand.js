@@ -1,41 +1,104 @@
 import path from 'path';
 import fs from 'fs-extra';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
-export async function setupZustand({ projectName, language }) {
-  const zustandPath = path.join(process.cwd(), projectName, 'src', 'store');
-  await fs.ensureDir(zustandPath);
+const execPromise = promisify(exec);
 
-  const fileName = language === 'ts' ? 'counterStore.ts' : 'counterStore.js';
-  const filePath = path.join(zustandPath, fileName);
 
-  const boilerplate = language === 'ts'
-    ? `import { create } from 'zustand'
 
-type CounterState = {
-  count: number
-  increment: () => void
-  decrement: () => void
+export async function setupZustand({ projectName, language, includeZustand }) {
+  const ext = language === 'ts' ? 'tsx' : 'jsx';
+  const appPath = path.join(process.cwd(), projectName, 'src', `App.${ext}`);
+
+  if (includeZustand) {
+    const zustandPath = path.join(process.cwd(), projectName, 'src', 'store');
+    await fs.ensureDir(zustandPath);
+
+    const fileName = language === 'ts' ? 'counterStore.ts' : 'counterStore.js';
+    const filePath = path.join(zustandPath, fileName);
+
+    // Zustand store setup with explicit type
+    const boilerplate = language === 'ts'
+      ? `import { create } from 'zustand';
+
+interface State {
+  count: number;
+  increment: () => void;
 }
 
-const useCounterStore = create<CounterState>((set) => ({
+export const useCounterStore = create<State>((set) => ({
   count: 0,
   increment: () => set((state) => ({ count: state.count + 1 })),
-  decrement: () => set((state) => ({ count: state.count - 1 })),
-}))
-
-export default useCounterStore
+}));
 `
-    : `import { create } from 'zustand'
+      : `import { create } from 'zustand';
 
-const useCounterStore = create((set) => ({
+export const useCounterStore = create((set) => ({
   count: 0,
   increment: () => set((state) => ({ count: state.count + 1 })),
-  decrement: () => set((state) => ({ count: state.count - 1 })),
-}))
-
-export default useCounterStore
+}));
 `;
 
-  await fs.writeFile(filePath, boilerplate);
-  console.log(`✅ Zustand store created at src/store/${fileName}`);
+    await fs.writeFile(filePath, boilerplate);
+
+    const zustandAppTemplate = `
+    import React from 'react';
+    import { useCounterStore } from "./store/counterStore";
+
+interface State {
+  count: number;
+  increment: () => void;
+}
+
+function App() {
+  // Explicitly type the state returned from Zustand
+  const count = useCounterStore((state: State) => state.count); // Explicitly typing the state
+  const increment = useCounterStore((state: State) => state.increment);
+
+  return (
+    <>
+      <h1>Vite + React + Zustand</h1>
+      <div className="card">
+        <button onClick={increment}>count is {count}</button>
+      </div>
+    </>
+  );
+}
+
+export default App;
+`;
+
+    await fs.writeFile(appPath, zustandAppTemplate);
+
+    try {
+      await execPromise('npm install zustand', {
+        cwd: path.join(process.cwd(), projectName),
+      });
+      console.log('✅ Zustand installed successfully');
+    } catch (error) {
+      console.error('❌ Error installing Zustand:', error);
+    }
+  } else {
+    const useStateTemplate = `
+    import React, { useState } from "react";
+
+function App() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount(count + 1)}>count is {count}</button>
+      </div>
+    </>
+  );
+}
+
+export default App;
+`;
+
+    await fs.writeFile(appPath, useStateTemplate);
+  }
 }
