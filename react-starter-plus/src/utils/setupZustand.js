@@ -42,9 +42,10 @@ export const useCounterStore = create((set) => ({
 
     await fs.writeFile(filePath, boilerplate);
 
-    const zustandAppTemplate = `
-    import React from 'react';
-    import { useCounterStore } from "./store/counterStore";
+const zustandAppTemplate =
+  language === 'ts'
+    ? `import React from 'react';
+import { useCounterStore } from "./store/counterStore";
 
 interface State {
   count: number;
@@ -52,8 +53,7 @@ interface State {
 }
 
 function App() {
-  // Explicitly type the state returned from Zustand
-  const count = useCounterStore((state: State) => state.count); // Explicitly typing the state
+  const count = useCounterStore((state: State) => state.count);
   const increment = useCounterStore((state: State) => state.increment);
 
   return (
@@ -67,7 +67,27 @@ function App() {
 }
 
 export default App;
+`
+    : `import React from 'react';
+import { useCounterStore } from "./store/counterStore";
+
+function App() {
+  const count = useCounterStore((state) => state.count);
+  const increment = useCounterStore((state) => state.increment);
+
+  return (
+    <>
+      <h1>Vite + React + Zustand</h1>
+      <div className="card">
+        <button onClick={increment}>count is {count}</button>
+      </div>
+    </>
+  );
+}
+
+export default App;
 `;
+
 
     await fs.writeFile(appPath, zustandAppTemplate);
 

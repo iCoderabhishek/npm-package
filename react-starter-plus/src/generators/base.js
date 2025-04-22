@@ -1,5 +1,6 @@
 import path from 'path';
 import prompts from 'prompts';
+import ora from 'ora';  // Importing ora for the spinner
 
 import { copyBase } from '../utils/copyBase.js';
 import { installReactDeps } from '../utils/setupReact.js';
@@ -58,49 +59,67 @@ export async function generateBaseProject(options) {
 
   console.log('✅ Proceeding with project setup...');
 
-  await copyBase({ projectName, language });
+  // Initialize spinner
+  const spinner = ora('Initializing project setup...').start();
 
-  installReactDeps(projectName);
-  await setupTailwind({ projectName, language });
+  try {
+    await copyBase({ projectName, language });
+    spinner.text = 'Installing React dependencies...';  // Update spinner text
+    installReactDeps(projectName);
 
-  const projectRoot = path.join(process.cwd(), projectName);
+    spinner.text = 'Setting up Tailwind CSS...';
+    await setupTailwind({ projectName, language });
 
-  setupRouting(projectRoot);
+    const projectRoot = path.join(process.cwd(), projectName);
+    spinner.text = 'Setting up routing...';
+    setupRouting(projectRoot);
 
-  if (useGit) {
-    initGit(projectRoot);
-    if (pushToRemote && remoteUrl) {
-      addRemoteAndPush(projectRoot, remoteUrl);
+    if (useGit) {
+      spinner.text = 'Initializing Git repository...';
+      initGit(projectRoot);
+      if (pushToRemote && remoteUrl) {
+        spinner.text = 'Pushing to remote repository...';
+        addRemoteAndPush(projectRoot, remoteUrl);
+      }
     }
-  }
 
-  if (includeCiCd) {
-    await copyCiCd({ projectName, language });
-  }
+    if (includeCiCd) {
+      spinner.text = 'Setting up CI/CD...';
+      await copyCiCd({ projectName, language });
+    }
 
-  if (includeZustand !== undefined) {
-    await setupZustand({
-      projectName,
-      language,
-      includeZustand,
-    });
-  }
+    if (includeZustand !== undefined) {
+      spinner.text = 'Setting up Zustand...';
+      await setupZustand({
+        projectName,
+        language,
+        includeZustand,
+      });
+    }
 
-  if (includeTesting) {
-    await setupTesting({ projectName, language });
-  }
+    if (includeTesting) {
+      spinner.text = 'Setting up testing environment...';
+      await setupTesting({ projectName, language });
+    }
 
-  if (vercelDeploy) {
-    await deployToVercel(projectName);
-  }
+    if (vercelDeploy) {
+      spinner.text = 'Setting up Vercel deployment...';
+      await deployToVercel(projectName);
+    }
 
-  if (deployNowChoice === 'yes') {
-    await deployNow(projectName);
-  } else {
-    console.log('🚀 You can deploy later by running the following command:');
-    console.log(`  cd ${projectName} && vercel --prod`);
-    console.log('⚡ Ensure you are in the project root directory when running this.');
-  }
+    if (deployNowChoice === 'yes') {
+      spinner.text = 'Deploying project now...';
+      await deployNow(projectName);
+    } else {
+      spinner.text = 'Deployment ready for later...';
+      console.log('🚀 You can deploy later by running the following command:');
+      console.log(`  cd ${projectName} && vercel --prod`);
+      console.log('⚡ Ensure you are in the project root directory when running this.');
+    }
 
-  console.log('🎉 Done! Happy hacking!');
+    spinner.succeed('🎉 Setup complete! Happy hacking!');
+  } catch (error) {
+    spinner.fail('❌ Setup failed.');
+    console.error(error);
+  }
 }
