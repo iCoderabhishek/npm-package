@@ -81,7 +81,26 @@ export async function setupTailwind({ projectName, language }) {
   const srcDir = path.join(root, 'src');
   await fs.ensureDir(srcDir);
   const indexCssPath = path.join(srcDir, 'index.css');
-  await fs.writeFile(indexCssPath, `@import "tailwindcss";`);
+  await fs.writeFile(indexCssPath, `
+    
+    @import "tailwindcss";
+
+    @layer base {
+        * {
+            @apply border-gray-200;
+        }
+
+        body {
+            @apply bg-[#030303] text-white;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        html {
+            overflow: hidden;
+        }
+    }`);
 
   // ESLint config
   // console.log('📄 Writing ESLint config...');

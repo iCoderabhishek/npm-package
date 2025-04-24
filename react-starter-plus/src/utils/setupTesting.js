@@ -2,6 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { execSync } from 'child_process';
 
+
 export async function setupTesting({ projectName, language }) {
   const isTS = language === 'ts';
   const projectPath = path.join(process.cwd(), projectName);
@@ -10,7 +11,7 @@ export async function setupTesting({ projectName, language }) {
 
   console.log("🧪 Setting up React Testing Library...");
 
-  // 1. Copy boilerplate testing files
+  // 1. Copy or create test file
   const targetTestPath = path.join(projectPath, 'testing');
   await fs.ensureDir(targetTestPath);
 
@@ -22,9 +23,48 @@ export async function setupTesting({ projectName, language }) {
     await fs.copy(sourceTestFile, targetTestFile);
     console.log(`📄 Copied ${path.basename(sourceTestFile)} to ${targetTestPath}`);
   } catch (error) {
-    console.error(`❌ Error copying test file: ${error.message}`);
+    if (error.code === 'ENOENT') {
+      console.log(`⚠️ App.test.${testFileExtension} not found. Creating a default test file...`);
+      const defaultTest = isTS
+        ? `
+        import "@testing-library/jest-dom";
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import App from "../src/App";
+
+describe("App component", () => {
+  it("renders the button with the correct text", () => {
+    render(<App />);
+
+    // Check if the button with the 'count is' text exists
+    expect(screen.getByText(/count is/i)).toBeInTheDocument();
+  });
+});
+
+      `.trim()
+        : `import React from 'react'; 
+        import { render, screen } from "@testing-library/react";
+        import App from "../src/App";
+        
+        describe("App component", () => {
+          it("renders the button with the correct text", () => {
+            render(<App />);
+        
+            // Check if the button with the 'count is' text exists
+            expect(screen.getByText(/count is/i)).toBeInTheDocument();
+          });
+        });
+        
+      `.trim();
+
+      await fs.writeFile(targetTestFile, defaultTest);
+      console.log(`✅ Default App.test.${testFileExtension} generated.`);
+    } else {
+      console.error(`❌ Error copying test file: ${error.message}`);
+    }
   }
 
+  // 2. Copy or create setupTests file
   const sourceSetupFile = path.join(boilerplateTestingPath, `setupTests.${isTS ? 'ts' : 'js'}`);
   const targetSetupFile = path.join(targetTestPath, `setupTests.${isTS ? 'ts' : 'js'}`);
 
@@ -35,13 +75,13 @@ export async function setupTesting({ projectName, language }) {
     } else {
       const defaultSetupContent = `import '@testing-library/jest-dom';\n`;
       await fs.writeFile(targetSetupFile, defaultSetupContent);
-      console.log(`🛠️ Created default setupTests.js`);
+      console.log(`🛠️ Created default setupTests.${isTS ? 'ts' : 'js'}`);
     }
   } catch (error) {
     console.error(`❌ Error handling setupTests file: ${error.message}`);
   }
 
-  // 2. Install dependencies (Babel presets included)
+  // 3. Install dependencies
   const baseDeps = [
     '@testing-library/react',
     '@testing-library/jest-dom',
@@ -55,17 +95,14 @@ export async function setupTesting({ projectName, language }) {
   ];
 
   const tsDeps = ['ts-jest', '@types/jest'];
-
   const deps = isTS ? [...baseDeps, ...tsDeps] : baseDeps;
 
-  // console.log("📦 Installing latest versions of test dependencies (no deprecated packages)...");
-
-  execSync(`npm install -D ${deps.join(' ')}  --loglevel=error --no-fund --no-audit`, {
+  execSync(`npm install -D ${deps.join(' ')} --loglevel=error --no-fund --no-audit`, {
     cwd: projectPath,
     stdio: 'inherit'
   });
 
-  // 3. Add testing script and Babel config to package.json
+  // 4. Update package.json
   const packageJsonPath = path.join(projectPath, 'package.json');
   const packageJsonContent = await fs.readJson(packageJsonPath);
 
@@ -79,9 +116,8 @@ export async function setupTesting({ projectName, language }) {
   };
 
   await fs.writeJson(packageJsonPath, packageJsonContent, { spaces: 2 });
-  // console.log("✍️ Updated package.json with test script and Babel configuration.");
 
-  // 4. Add jest config
+  // 5. Write Jest config
   const jestConfigFile = path.join(projectPath, isTS ? 'jest.config.ts' : 'jest.config.js');
 
   const setupFilesAfterEnvPath = './testing/setupTests.js';
@@ -115,7 +151,6 @@ export default config;
 `;
 
   await fs.writeFile(jestConfigFile, jestConfigContent);
-  // console.log(`🛠️ Created ${path.basename(jestConfigFile)}`);
 
   console.log('✅ Testing setup complete!');
 }
