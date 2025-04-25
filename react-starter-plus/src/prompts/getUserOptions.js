@@ -7,7 +7,7 @@ export async function getUserOptions() {
     {
       type: 'text',
       name: 'projectName',
-      message: '📁 Project name:',
+      message: '◇ Project name »',
       initial: 'my-react-app',
     },
 
@@ -15,7 +15,7 @@ export async function getUserOptions() {
     {
       type: 'select',
       name: 'language',
-      message: '🧠 Choose language:',
+      message: '◇ Choose language »',
       choices: [
         { title: 'JavaScript', value: 'js' },
         { title: 'TypeScript', value: 'ts' }
@@ -25,64 +25,88 @@ export async function getUserOptions() {
 
     // Git initialization
     {
-      type: 'confirm',
+      type: 'select',
       name: 'useGit',
-      message: '🧑‍💻 Initialize Git?',
-      initial: true,
+      message: '◇ Initialize Git repository? »',
+      choices: [
+        { title: 'Yes', value: true },
+        { title: 'No', value: false },
+      ],
+      initial: 0,
     },
 
-    // Conditional prompt for pushing to remote GitHub (only if Git is initialized)
+    // Push to remote
     {
-      type: (prev) => prev ? 'confirm' : null,
+      type: (prev) => prev ? 'select' : null,
       name: 'pushToRemote',
-      message: '🔗 Push to GitHub remote too?',
-      initial: false,
+      message: '◇ Push to GitHub remote? »',
+      choices: [
+        { title: 'Yes', value: true },
+        { title: 'No', value: false },
+      ],
+      initial: 1,
     },
 
-    // GitHub Repo URL (only if pushing to remote GitHub)
+    // Remote URL
     {
       type: (prev, values) => values.pushToRemote ? 'text' : null,
       name: 'remoteUrl',
-      message: '🌍 GitHub Repo URL:',
+      message: '◇ GitHub Remote URL »',
     },
 
-    // CI/CD with GitHub Actions
+    // CI/CD
     {
-      type: 'confirm',
+      type: 'select',
       name: 'includeCiCd',
-      message: '⚙️ Add CI/CD with GitHub Actions?',
-      initial: true,
+      message: '✦ Add CI/CD with GitHub Actions? »',
+      choices: [
+        { title: 'Yes', value: true },
+        { title: 'No', value: false },
+      ],
+      initial: 0,
     },
 
-    // Zustand for state management
+    // Zustand
     {
-      type: 'confirm',
+      type: 'select',
       name: 'includeZustand',
-      message: '🧠 Add Zustand for state management?',
-      initial: false,
+      message: '✦ Add Zustand for state management? »',
+      choices: [
+        { title: 'Yes', value: true },
+        { title: 'No', value: false },
+      ],
+      initial: 1,
     },
 
-    // React Testing Library with Jest
+    // Testing
     {
-      type: 'confirm',
+      type: 'select',
       name: 'includeTesting',
-      message: '🔬 Do you want to include React Testing Library (with Jest)?',
-      initial: false,
+      message: '✦ Include React Testing Library (Jest)? »',
+      choices: [
+        { title: 'Yes', value: true },
+        { title: 'No', value: false },
+      ],
+      initial: 1,
     },
 
-    // Vercel deployment prompt
+    // Vercel deploy
     {
-      type: 'confirm',
+      type: 'select',
       name: 'vercelDeploy',
-      message: '🚀 Deploy the project using Vercel CLI?',
-      initial: true,
+      message: '✦ Deploy using Vercel CLI? »',
+      choices: [
+        { title: 'Yes', value: true },
+        { title: 'No', value: false },
+      ],
+      initial: 0,
     },
 
-    // Deploy now prompt (only if Vercel deployment is selected)
+    // Deploy now
     {
       type: (prev, values) => values.vercelDeploy ? 'select' : null,
       name: 'deployNowChoice',
-      message: 'Would you like to deploy now?',
+      message: '⧗ ✓ Do you want to deploy now or later? »',
       choices: [
         { title: 'Yes, deploy now', value: 'yes' },
         { title: 'No, deploy later', value: 'no' },

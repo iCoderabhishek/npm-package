@@ -25,20 +25,28 @@ export async function setupZustand({ projectName, language, includeZustand }) {
 interface State {
   count: number;
   increment: () => void;
+  decrement: () => void;
+  reset: () => void;
 }
 
 export const useCounterStore = create<State>((set) => ({
   count: 0,
   increment: () => set((state: State) => ({ count: state.count + 1 })),
+  decrement: () => set((state: State) => ({ count: state.count - 1 })),
+  reset: () => set({ count: 0 }),
 }));
+
 `
       : `import { create } from 'zustand';
 
-export const useCounterStore = create((set) => ({
+
+
+export const useCounterStore = create<State>((set) => ({
   count: 0,
   increment: () => set((state) => ({ count: state.count + 1 })),
-}));
-`;
+  decrement: () => set((state) => ({ count: state.count - 1 })),
+  reset: () => set({ count: 0 }),
+}));`;
 
     await fs.writeFile(filePath, boilerplate);
 
@@ -47,14 +55,19 @@ const zustandAppTemplate =
     ? `import React, { useState } from 'react';
   import { useCounterStore } from './store/counterStore';
 
-  interface State {
-    count: number;
-    increment: () => void;
-  }
+ interface State {
+  count: number;
+  increment: () => void;
+  decrement: () => void;
+  reset: () => void;
+}
 
-const App = () => {
+  const App = () => {
   const count = useCounterStore((state: State) => state.count);
   const increment = useCounterStore((state: State) => state.increment);
+  const decrement = useCounterStore((state: State) => state.decrement);
+  const reset = useCounterStore((state: State) => state.reset);
+    
   const [isHovering, setIsHovering] = useState(false);
 
   return (
@@ -96,13 +109,13 @@ const App = () => {
         <div className="mb-10 font-sans font-medium flex gap-4 w-full justify-center">
           {/* These won’t work unless you expand Zustand store. Optional */}
           <button
-            onClick={() => console.warn("Decrement needs to be implemented in Zustand")}
+            onClick={decrement}
             className="px-6 py-3 bg-[#1a1a4065] hover:bg-gray-700 rounded-xl border border-gray-700 w-1/3"
           >
             Decrement
           </button>
           <button
-            onClick={() => console.warn("Reset needs to be implemented in Zustand")}
+            onClick={reset}
             className="px-6 py-3 bg-[#1d1d4edc] hover:bg-gray-700 rounded-xl border border-gray-700 w-1/3"
           >
             Reset
@@ -139,6 +152,9 @@ import { useCounterStore } from './store/counterStore';
 const App = () => {
   const count = useCounterStore((state) => state.count);
   const increment = useCounterStore((state) => state.increment);
+  const decrement = useCounterStore((state) => state.decrement);
+  const reset = useCounterStore((state) => state.reset);
+
   const [isHovering, setIsHovering] = useState(false);
 
   return (
@@ -180,13 +196,13 @@ const App = () => {
         <div className="mb-10 font-sans font-medium flex gap-4 w-full justify-center">
           {/* These won’t work unless you expand Zustand store. Optional */}
           <button
-            onClick={() => console.warn("Decrement needs to be implemented in Zustand")}
+            onClick={decrement}
             className="px-6 py-3 bg-[#1a1a4065] hover:bg-gray-700 rounded-xl border border-gray-700 w-1/3"
           >
             Decrement
           </button>
           <button
-            onClick={() => console.warn("Reset needs to be implemented in Zustand")}
+            onClick={reset}
             className="px-6 py-3 bg-[#1d1d4edc] hover:bg-gray-700 rounded-xl border border-gray-700 w-1/3"
           >
             Reset
@@ -224,9 +240,9 @@ export default App;
       await execPromise('npm install zustand', {
         cwd: path.join(process.cwd(), projectName),
       });
-      console.log('✅ Zustand installed successfully');
+      console.log('\n ✔ Zustand installed successfully');
     } catch (error) {
-      console.error('❌ Error installing Zustand:', error);
+      console.error('✗ Error installing Zustand:', error);
     }
   } else {
     const useStateTemplate = `

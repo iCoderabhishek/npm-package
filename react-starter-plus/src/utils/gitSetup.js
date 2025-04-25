@@ -22,9 +22,9 @@ export function initGit(projectRoot) {
     execSync('git add .', { cwd: projectRoot });
     execSync('git commit -m "Initial commit 🎉"', { cwd: projectRoot });
 
-    console.log('✅ Git initialized');
+    console.log('\n ✔ Git initialized');
   } catch (err) {
-    console.error('❌ Git setup failed:', err.message);
+    console.error('\n ✗ Git setup failed:', err.message);
   }
 }
 
@@ -33,8 +33,8 @@ export function addRemoteAndPush(projectRoot, remoteUrl) {
         execSync(`git remote add origin ${remoteUrl}`, { cwd: projectRoot });
         execSync(`git branch -M main`, { cwd: projectRoot });
         execSync(`git push -u origin main`, { cwd: projectRoot });
-        console.log('🚀 Code pushed to GitHub!');
+        console.log('✔ Code pushed to GitHub!');
     } catch (err) {
-        console.error('❌ Git push failed:', err.message);
+        console.error('✗ Git push failed:', err.message);
     }
 }

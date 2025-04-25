@@ -2,14 +2,14 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "jsx": "react-jsx", // 
+    "jsx": "react-jsx",
     "moduleResolution": "Node",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["vitest"],
-
+    "types": ["@testing-library/jest-dom", "jest-environment-jsdom", "jest"],
+    "lib": ["dom", "esnext"] 
   },
   "include": ["src"]
 }

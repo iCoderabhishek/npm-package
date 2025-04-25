@@ -9,7 +9,7 @@ export async function setupTesting({ projectName, language }) {
   const boilerplateBasePath = path.resolve(`boilerplates/${language}`);
   const boilerplateTestingPath = path.join(boilerplateBasePath, 'testing');
 
-  console.log("🧪 Setting up React Testing Library...");
+  console.log("⧗ Setting up React Testing Library...");
 
   // 1. Copy or create test file
   const targetTestPath = path.join(projectPath, 'testing');
@@ -21,10 +21,10 @@ export async function setupTesting({ projectName, language }) {
 
   try {
     await fs.copy(sourceTestFile, targetTestFile);
-    console.log(`📄 Copied ${path.basename(sourceTestFile)} to ${targetTestPath}`);
+    // console.log(`→  Copied ${path.basename(sourceTestFile)} to ${targetTestPath}`);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      console.log(`⚠️ App.test.${testFileExtension} not found. Creating a default test file...`);
+      // console.log(` App.test.${testFileExtension} not found. Creating a default test file...`);
       const defaultTest = isTS
         ? `
         import "@testing-library/jest-dom";
@@ -58,9 +58,9 @@ describe("App component", () => {
       `.trim();
 
       await fs.writeFile(targetTestFile, defaultTest);
-      console.log(`✅ Default App.test.${testFileExtension} generated.`);
+      // console.log(`✔ Default App.test.${testFileExtension} generated.`);
     } else {
-      console.error(`❌ Error copying test file: ${error.message}`);
+      console.error(`✗ Error copying test file: ${error.message}`);
     }
   }
 
@@ -71,14 +71,14 @@ describe("App component", () => {
   try {
     if (await fs.pathExists(sourceSetupFile)) {
       await fs.copy(sourceSetupFile, targetSetupFile);
-      console.log(`📄 Copied ${path.basename(sourceSetupFile)} to ${targetTestPath}`);
+      // console.log(` Copied ${path.basename(sourceSetupFile)} to ${targetTestPath}`);
     } else {
       const defaultSetupContent = `import '@testing-library/jest-dom';\n`;
       await fs.writeFile(targetSetupFile, defaultSetupContent);
-      console.log(`🛠️ Created default setupTests.${isTS ? 'ts' : 'js'}`);
+      // console.log(`→  Created default setupTests.${isTS ? 'ts' : 'js'}`);
     }
   } catch (error) {
-    console.error(`❌ Error handling setupTests file: ${error.message}`);
+    console.error(`✗ Error handling setupTests file: ${error.message}`);
   }
 
   // 3. Install dependencies
@@ -152,5 +152,5 @@ export default config;
 
   await fs.writeFile(jestConfigFile, jestConfigContent);
 
-  console.log('✅ Testing setup complete!');
+  console.log('\n ✔ Testing setup complete!');
 }

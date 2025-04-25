@@ -1,6 +1,5 @@
 import path from 'path';
 import prompts from 'prompts';
-import ora from 'ora';  // Importing ora for the spinner
 
 import { copyBase } from '../utils/copyBase.js';
 import { installReactDeps } from '../utils/setupReact.js';
@@ -16,8 +15,8 @@ export async function askForConfirmation() {
   const { proceed } = await prompts({
     type: 'confirm',
     name: 'proceed',
-    message: '❓ Do you want to proceed with this setup?',
-    initial: false, // set default to "No"
+    message: ' → Do you want to proceed with this setup?',
+    initial: false,
   });
 
   return proceed;
@@ -37,59 +36,62 @@ export async function generateBaseProject(options) {
     includeTesting,
   } = options;
 
-  // Show summary first
-  console.log('🌟 Summary of your project setup:');
-  console.log(`  Project name: ${projectName}`);
-  console.log(`  Language: ${language}`);
-  console.log(`  Git initialized: ${useGit ? 'Yes' : 'No'}`);
-  console.log(`  Push to remote: ${pushToRemote ? 'Yes' : 'No'}`);
-  if (pushToRemote && remoteUrl) console.log(`  Remote URL: ${remoteUrl}`);
-  console.log(`  CI/CD setup: ${includeCiCd ? 'Yes' : 'No'}`);
-  console.log(`  Vercel deployment: ${vercelDeploy ? 'Yes' : 'No'}`);
-  console.log(`  Deploy now: ${deployNowChoice === 'yes' ? 'Yes' : 'No'}`);
-  console.log(`  Zustand for state management: ${includeZustand ? 'Yes' : 'No'}`);
-  console.log(`  React Testing Library: ${includeTesting ? 'Yes' : 'No'}`);
+  console.log('\n ▸ Summary of your project setup:\n');
+
+  const line = (label, value) =>
+    console.log(`  » ${label.padEnd(30)} ${value}`);
+
+  line('Project name:', projectName);
+  line('Language:', language);
+  line('Git initialized:', useGit ? 'Yes' : 'No');
+  line('Push to remote:', pushToRemote ? 'Yes' : 'No');
+  if (pushToRemote && remoteUrl) line('Remote URL:', remoteUrl);
+  line('CI/CD setup:', includeCiCd ? 'Yes' : 'No');
+  line('Vercel deployment:', vercelDeploy ? 'Yes' : 'No');
+  line('Deploy now:', deployNowChoice === 'yes' ? 'Yes' : 'No');
+  line('Zustand for state management:', includeZustand ? 'Yes' : 'No');
+  line('React Testing Library:', includeTesting ? 'Yes' : 'No');
+
+  console.log();
 
   const confirmed = await askForConfirmation();
 
   if (!confirmed) {
-    console.log('❌ Setup cancelled by user.');
+    console.log('✗ Setup cancelled by user.');
     return;
   }
 
-  console.log('✅ Proceeding with project setup...');
-
-  // Initialize spinner
-  const spinner = ora('Initializing project setup...').start();
-
   try {
+    console.log('\n⧗ Setting base project files...');
     await copyBase({ projectName, language });
-    spinner.text = 'Installing React dependencies...';  // Update spinner text
+
+    console.log('⧗ Installing React dependencies...');
     installReactDeps(projectName);
 
-    spinner.text = 'Setting up Tailwind CSS...';
+    console.log('⧗ Setting up Tailwind CSS...');
     await setupTailwind({ projectName, language });
 
     const projectRoot = path.join(process.cwd(), projectName);
-    spinner.text = 'Setting up routing...';
+
+    console.log('⧗ Setting up routing...');
     setupRouting(projectRoot);
 
     if (useGit) {
-      spinner.text = 'Initializing Git repository...';
+      console.log('⧗ Initializing Git repository...');
       initGit(projectRoot);
       if (pushToRemote && remoteUrl) {
-        spinner.text = 'Pushing to remote repository...';
+        console.log('⧗ Pushing to remote repository...');
         addRemoteAndPush(projectRoot, remoteUrl);
       }
     }
 
     if (includeCiCd) {
-      spinner.text = 'Setting up CI/CD...';
+      console.log('⧗ Setting up CI/CD...');
       await copyCiCd({ projectName, language });
     }
 
-    if (includeZustand !== undefined) {
-      spinner.text = 'Setting up Zustand...';
+    if (includeZustand === true) {
+      console.log('⧗ Setting up Zustand...');
       await setupZustand({
         projectName,
         language,
@@ -98,28 +100,27 @@ export async function generateBaseProject(options) {
     }
 
     if (includeTesting) {
-      spinner.text = 'Setting up testing environment...';
+      console.log('⧗ Setting up testing environment...');
       await setupTesting({ projectName, language });
     }
 
     if (vercelDeploy) {
-      spinner.text = 'Setting up Vercel deployment...';
+      console.log('⧗ Setting up Vercel deployment...');
       await deployToVercel(projectName);
     }
 
     if (deployNowChoice === 'yes') {
-      spinner.text = 'Deploying project now...';
+      console.log('⧗ Deploying project now...');
       await deployNow(projectName);
     } else {
-      spinner.text = 'Deployment ready for later...';
-      console.log('🚀 You can deploy later by running the following command:');
-      console.log(`  cd ${projectName} && vercel --prod`);
-      console.log('⚡ Ensure you are in the project root directory when running this.');
+      console.log('\n →  You can deploy later by running the following command:');
+      console.log(`\n →  cd ${projectName} && vercel --prod`);
+      console.log('\n →  Ensure you are in the project root directory when running this.');
     }
 
-    spinner.succeed('🎉 Setup complete! Happy hacking!');
+    console.log(`→ Try running your project with \`npm run dev\`.`);
   } catch (error) {
-    spinner.fail('❌ Setup failed.');
+    console.error('\n✗ Setup failed.');
     console.error(error);
   }
 }

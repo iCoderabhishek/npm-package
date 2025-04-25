@@ -3,14 +3,14 @@ import { getUserOptions } from './prompts/getUserOptions.js';
 import { generateBaseProject } from './generators/base.js';
 
 const run = async () => {
-  intro('🚀 Welcome to React Starter Plus CLI!');
+  intro('✦ Hi, choose your features');
 
   const baseOptions = await getUserOptions();
 
   // Only call generateBaseProject now, it handles the folder creation after confirmation
   await generateBaseProject(baseOptions);  
 
-  outro('🎉 Done! Happy hacking!');
+ outro('✔ Done! Happy koding ;)');
 };
 
 run();

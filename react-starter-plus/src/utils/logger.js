@@ -7,3 +7,7 @@ export const intro = (msg) => {
 export const outro = (msg) => {
   console.log('\n' + chalk.green.bold(msg) + '\n');
 };
+
+export const cancel = (msg) => {
+  console.log('\n' + chalk.red.bold('✖ ' + msg) + '\n');
+};

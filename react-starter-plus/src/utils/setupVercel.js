@@ -33,12 +33,12 @@ function spawnLogin() {
 }
 
 export async function deployNow(projectName) {
-  console.log('🚀 Deploying to Vercel...');
+  console.log('⧗ Deploying to Vercel...');
   try {
     // Step 1: Build the project before deploying
-    console.log('📦 Building the project...');
+    console.log('⧗ Building the project...');
     await exec(`cd ${projectName} && npm run build`);
-    console.log('✅ Build successful!');
+    console.log('✔ Build successful!');
 
     // Step 2: Deploy the built project using Vercel CLI
     const { stdout, stderr } = await exec(
@@ -46,18 +46,18 @@ export async function deployNow(projectName) {
     );
 
     if (stderr) console.warn('⚠️ stderr:', stderr);
-    console.log(`✅ Deployment successful:\n${stdout}`);
+    console.log(`✔ Deployment successful:\n${stdout}`);
   } catch (err) {
-    console.error('❌ Deployment failed:', err.message);
+    console.error('✗ Deployment failed:', err.message);
   }
 }
 
 
 export async function deployToVercel(projectName) {
-  console.log('🔍 Checking Vercel CLI...');
+  console.log('⧗ Checking Vercel CLI...');
   try {
     await checkVercelCLI();
-    console.log('✅ Vercel CLI found.');
+    console.log('✔ Vercel CLI found.');
   } catch (err) {
     const { install } = await prompts({
       type: 'confirm',
@@ -67,13 +67,13 @@ export async function deployToVercel(projectName) {
     });
 
     if (install) {
-      console.log('📦 Installing Vercel CLI...');
+      console.log('⧗ Installing Vercel CLI...');
       try {
         const { stdout, stderr } = await exec('npm install -g vercel');
-        if (stderr) console.warn('⚠️ npm warnings:', stderr);
-        console.log('✅ Vercel CLI installed.');
+        if (stderr) console.warn(' npm warnings:', stderr);
+        console.log('✔ Vercel CLI installed.');
       } catch (err) {
-        console.error('❌ Installation failed:', err.message);
+        console.error('✗ Installation failed:', err.message);
         return;
       }
     } else {
@@ -81,10 +81,10 @@ export async function deployToVercel(projectName) {
     }
   }
 
-  console.log('🔍 Checking Vercel login...');
+  console.log('⧗ Checking Vercel login...');
   try {
     await checkVercelLogin();
-    console.log('✅ Logged in to Vercel.');
+    console.log('✔ Logged in to Vercel.');
   } catch (err) {
     const { login } = await prompts({
       type: 'confirm',
@@ -94,12 +94,12 @@ export async function deployToVercel(projectName) {
     });
 
     if (login) {
-      console.log('🔐 Logging in...');
+      console.log('⧗ Logging in...');
       try {
         await spawnLogin();
-        console.log('✅ Logged in to Vercel.');
+        console.log('✔ Logged in to Vercel.');
       } catch (err) {
-        console.error('❌ Login failed:', err.message);
+        console.error('✗ Login failed:', err.message);
         return;
       }
     } else {
