@@ -20,7 +20,7 @@
     "boilerplate"
   ],
   "author": "Abhishek Jha",
-  "license": "ISC",
+  "license": "MIT",
   "description": "react-starter-plus a react starter template",
   "dependencies": {
     "@tailwindcss/vite": "^4.1.4",
